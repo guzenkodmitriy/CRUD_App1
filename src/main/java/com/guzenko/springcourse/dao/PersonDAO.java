@@ -35,11 +35,20 @@ public class PersonDAO {
     }
 
     public void save(Person person) {
-        jdbcTemplate.update("INSERT INTO person(name, age, email) VALUES (?, ?, ?)", person.getName(), person.getAge(), person.getEmail());
+        jdbcTemplate.update("INSERT INTO person(name, age, email, address) VALUES (?, ?, ?, ?)"
+                , person.getName()
+                , person.getAge()
+                , person.getEmail()
+                , person.getAddress());
     }
 
     public void update(int id, Person updatedPerson) {
-        jdbcTemplate.update("update Person set name = ?, age = ?, email = ? where id = ?", updatedPerson.getName(), updatedPerson.getAge(), updatedPerson.getEmail(), id);
+        jdbcTemplate.update("update Person set name = ?, age = ?, email = ?, address = ? where id = ?"
+                , updatedPerson.getName()
+                , updatedPerson.getAge()
+                , updatedPerson.getEmail()
+                , updatedPerson.getAddress()
+                , id);
 
     }
 
@@ -92,7 +101,7 @@ public class PersonDAO {
     private List<Person> create1000People() {
         List<Person> people = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            people.add(new Person(i, "Name" + i, 30, "Emailtest" + i + "@gmail.com"));
+            people.add(new Person(i, "Name" + i, 30, "Emailtest" + i + "@gmail.com", "some address"));
         }
 
         return people;
