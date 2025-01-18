@@ -1,41 +1,59 @@
 package com.guzenko.springcourse.dao;
 
 import com.guzenko.springcourse.models.Person;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class PersonDAO {
 
-    private final JdbcTemplate jdbcTemplate;
+    private SessionFactory sessionFactory;
 
-    public PersonDAO(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    @Autowired
+    public PersonDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
+    @Transactional(readOnly = true)
     public List<Person> index() {
-        return jdbcTemplate.query("SELECT * FROM person", new BeanPropertyRowMapper<>(Person.class));
+        Session session = sessionFactory.getCurrentSession();
+
+        List<Person> people = session.createQuery("select p from Person p", Person.class).getResultList();
+
+        return people;
     }
 
+    @Transactional(readOnly = true)
     public Person show(int id) {
-       return jdbcTemplate.queryForObject("SELECT * FROM person WHERE id = ?", new Object[]{id}, new BeanPropertyRowMapper<>(Person.class));
+        Session session = sessionFactory.getCurrentSession();
+        Person person = session.get(Person.class, id);
+       return person;
     }
 
+    @Transactional
     public void save(Person person) {
-        jdbcTemplate.update("INSERT INTO person VALUES (1, ?, ?, ?)", person.getName(), person.getAge(), person.getEmail());
+
+        Session session = sessionFactory.getCurrentSession();
+        session.save(person);
+
     }
 
+    @Transactional
     public void update(int id, Person updatedPerson) {
-        jdbcTemplate.update("update Person set name = ?, age = ?, email = ? where id = ?", updatedPerson.getName(), updatedPerson.getAge(), updatedPerson.getEmail(), id);
-
+        Session session = sessionFactory.getCurrentSession();
+        session.update(updatedPerson);
     }
 
+    @Transactional
     public void delete(int id) {
-        jdbcTemplate.update("delete from person where id = ?", id);
+        Session session = sessionFactory.getCurrentSession();
+        Person person = session.get(Person.class, id);
+        session.remove(person);
+
     }
 }
